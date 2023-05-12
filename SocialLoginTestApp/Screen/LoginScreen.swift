@@ -2,37 +2,39 @@
 //  LoginScreen.swift
 //  SocialLoginTestApp
 //
-//  Created by 최준영 on 2023/05/05.
+//  Created by 최준영 on 2023/05/07.
 //
 
 import SwiftUI
 
-
-
 struct LoginScreen: View {
-    @StateObject var socialLogin = SocialLoginViewModel()
+    @StateObject var viewModel = LoginScreenViewModel()
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        GeometryReader { geo in
-            VStack {
-                Button("유저정보 가져오기") {
-                    socialLogin.getUserInfo()
+        NavigationStack(path: $viewModel.viewState) {
+            GeometryReader { geo in
+                VStack {
+                    Button {
+                        viewModel.logInRequest()
+                    } label: {
+                        Image("kakao_login_large_wide")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: geo.size.width*0.8)
+                    }
                 }
-                
-                Button {
-                    socialLogin.kakaoSocialLogin()
-                } label: {
-                    Image("kakao_login_medium_narrow")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 185, height: 45)
-                }
-                
-                Button("로그아웃") {
-                    socialLogin.kakaoSocialLogOut()
-                }
+                .position(x: geo.size.width/2, y: geo.size.height/2)
             }
-            .position(x: geo.size.width/2, y: geo.size.height/2)
+                .navigationDestination(for: LoginScreenViewState.self) { state in
+                    switch (state) {
+                    case .userInfo:
+                        UserInformationView(viewModel: viewModel)
+                    }
+                }
+        }
+        .onAppear {
+            viewModel.dismiss = dismiss
         }
     }
 }
@@ -40,5 +42,6 @@ struct LoginScreen: View {
 struct LoginScreen_Previews: PreviewProvider {
     static var previews: some View {
         LoginScreen()
+            .environmentObject(AuthenticationObject())
     }
 }

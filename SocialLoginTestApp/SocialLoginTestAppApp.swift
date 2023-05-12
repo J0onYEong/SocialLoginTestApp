@@ -11,13 +11,16 @@ import KakaoSDKAuth
 
 @main
 struct SocialLoginTestAppApp: App {
+    @ObservedObject var authentication = AuthenticationObject()
+    
     init() {
         KakaoSDK.initSDK(appKey: KakaoApp.nativeAppKey)
     }
     
     var body: some Scene {
         WindowGroup {
-            LoginScreen()
+            MainScene()
+                .environmentObject(authentication)
                 .onOpenURL { url in
                     if AuthApi.isKakaoTalkLoginUrl(url) {
                         _ = AuthController.handleOpenUrl(url: url)
